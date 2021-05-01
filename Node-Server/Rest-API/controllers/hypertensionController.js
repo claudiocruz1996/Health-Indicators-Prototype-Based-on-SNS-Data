@@ -3,13 +3,14 @@ const hypertensionMethod = require("../methods/hypertensionMethods")
 
 async function hypertensionController(req, res, next) {
   try {
-    const value = await hypertensionModel.validate(req.body)
-    await hypertensionMethod(req, res)
-    //console.log(value)
+    await hypertensionModel.validateAsync(req.body)
+    res.json(await hypertensionMethod(req.body))
   } catch (err) {
-    return next(err)
-    console.log(err.stack)
-    //não imprime erro
+    next(err)
+    res.json({
+      sucess: false,
+      message: err.message,
+    })
   }
 }
 
@@ -30,3 +31,13 @@ const hypertensionController = async function (req, res, next) {
 }
 
  */
+
+/*   try {
+    const value = await hypertensionModel.validate(req.body)
+    await hypertensionMethod(req, res)
+    //console.log(value)
+  } catch (err) {
+    return next(err)
+    console.log(err.stack)
+    //não imprime erro
+  } */

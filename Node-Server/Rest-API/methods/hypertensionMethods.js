@@ -1,19 +1,31 @@
-const axios = require("axios")
+const hypertensionDatabase = require("../database/hypertensionDatabase")
 
-async function hypertensionMethod(req, res) {
+async function hypertensionMethod(parms) {
   try {
-    const a = {
-      test: "abc",
+    let response
+    if (Object.keys(parms).length === 0) {
+      response = await hypertensionDatabase.getAllData()
+      console.log("1")
     }
-    /*     await axios
-      .get("https://randomuser.me/api/?page=1&results=10")
-      .then((response) => {
-        res.send(response.data)
-      }) */
-    //return a
-    res.json(a)
+    if (!parms.start_date && parms.end_date) {
+      response = await hypertensionDatabase.getDataUntil(parms.end_date)
+      console.log("2")
+    }
+    if (parms.start_date && !parms.end_date) {
+      response = await hypertensionDatabase.getDataFrom(parms.start_date)
+      console.log("3")
+    }
+
+    if (parms.start_date && parms.end_date) {
+      response = await hypertensionDatabase.getDataFromUntil(
+        parms.start_date,
+        parms.end_date
+      )
+      console.log("4")
+    }
+    return response
   } catch (err) {
-    console.log(err.stack)
+    throw new Error(err.message)
   }
 }
 
