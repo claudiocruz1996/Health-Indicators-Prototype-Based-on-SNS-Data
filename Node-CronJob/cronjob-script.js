@@ -3,7 +3,7 @@ const cron = require("node-cron")
 const { Pool } = require("pg")
 require("log-timestamp")
 const mapping = require("../Node-CronJob/maps")
-const dto = require("../Node-CronJob/dtos")
+const dataModels = require("./dataModels")
 
 const pool = new Pool({
   user: "claudio",
@@ -18,46 +18,15 @@ const pool = new Pool({
 
 let myNewObject = []
 
-/* const hipertensao = sql.define({
-  name: "hipertensao",
-  columns: [
-    "contagem_de_utentes_inscritos_com_hipertensao_arterial_com_pressao_arterial_inferior_a_150_90_mmhg_n",
-    "regiao",
-    "ponto_ou_localizacao_geografica",
-    "proporcao_hipertensos_65_a_com_pa_150_90",
-    "tempo",
-    "aces",
-  ],
-}) */
-
-/* const diabetes = sql.define({
-  name: "diabetes",
-  columns: [
-    "contagem_de_utentes_inscritos_com_diabetes_com_ultimo_resultado_de_hgba1c_inferior_ou_igual_a_8_0",
-    "regiao",
-    "tempo",
-    "ponto_ou_localizacao_geografica",
-    "proporcao_dm_c_ultima_hgba1c_8_0",
-    "contagem_de_utentes_inscritos_com_diabetes_com_exame_dos_pes_realizado_no_ultimo_ano",
-    "proporcao_dm_com_exame_pes_ultimo_ano",
-    "aces",
-  ],
-}) */
-
 /**
- *
- * @param {*} data
- * @param {*} sqlObj
- * @param {*} dataset
- * @param {*} client
+ * This function creates a new object from the recived data, then it deletes all rows present on the dataset table, and inserts the new freshly created object data.
+ * @param {*} data This variable stores a JSON with all data about the dataset called
+ * @param {*} dataModel This variable loads the Data Model correspond to the dataset called
+ * @param {*} dataset This variable passes the Dataset name
+ * @param {*} client This variable contains the database pool connection
  */
-async function executeQuery(data, sqlObj, dataset, client) {
+async function executeQuery(data, dataModel, dataset, client) {
   try {
-    /*     data.records.forEach((element) => {
-      element.fields.tempo += "-01"
-      myObject.push(element.fields)
-    }) */
-
     data.records.forEach((element) => {
       let data = {}
       Object.keys(element.fields).forEach((field) => {
@@ -73,35 +42,32 @@ async function executeQuery(data, sqlObj, dataset, client) {
       myNewObject.push(data)
     })
 
-    console.log(myNewObject)
-    console.log("\n---------------------------------------------\n")
-    /* let datasetInsert = sqlObj.insert(myObject).toQuery()
+    let datasetInsert = dataModel.insert(myNewObject).toQuery()
     const dropTable = await client.query(`DELETE FROM ${dataset} WHERE true;`)
     const resDatasetInsert = await client.query(datasetInsert)
-    console.log(`Os dados para o indicador ${dataset} foram atualizados`) */
+    console.log(`Os dados para o indicador ${dataset} foram atualizados`)
     myNewObject = []
   } catch (err) {
     console.log(err.stack)
   }
 }
 /**
- *
- * @param {*} dataset
- * @param {*} nhits
- * @param {*} sqlObj
- * @param {*} client
+ * This function verifies if the dataset table is updated, if is not, it calls the transparency API to get all present data available about the dataset
+ * and then calls the function executeQuery().
+ * @param {*} dataset This variable passes the Dataset name
+ * @param {*} nhits This variable stores the number of rows with data about the dataset called
+ * @param {*} dataModel This variable loads the Data Model correspond to the dataset called
+ * @param {*} client This variable contains the database pool connection
  */
-async function axiosCallDataset(dataset, nhits, sqlObj, client) {
+async function axiosCallDataset(dataset, nhits, dataModel, client) {
   try {
     let resTableRow = await client.query(`SELECT COUNT (*) FROM ${dataset};`)
-    nhits = 2
-
     if (resTableRow.rows[0].count != nhits) {
       const resp = await axios.get(
         `https://transparencia.sns.gov.pt/api/records/1.0/search/?dataset=${dataset}&q=&rows=${nhits}`
       )
 
-      return await executeQuery(resp.data, sqlObj, dataset, client)
+      return await executeQuery(resp.data, dataModel, dataset, client)
     } else {
       console.log(
         `Os dados para o indicador ${dataset} já se encontram atualizados`
@@ -113,19 +79,18 @@ async function axiosCallDataset(dataset, nhits, sqlObj, client) {
 }
 
 /**
- * This function recives 2 arguments and then calls the transparency API to get the number of rows in the dataset.
- * @param {string} dataset dataset name
- * @param {Object} sqlObj db model
+ * This function calls the transparency API to get the number of rows in the dataset.
+ * @param {string} dataset This variable passes the Dataset name
+ * @param {Object} dataModel This variable loads the Data Model correspond to the dataset called
  */
-async function axiosCallNhits(dataset, sqlObj) {
+async function axiosCallNhits(dataset, dataModel) {
   const client = await pool.connect()
   try {
-    //client.connect();
     const resp = await axios.get(
       `https://transparencia.sns.gov.pt/api/records/1.0/search/?dataset=${dataset}&q=&rows=0`
     )
-    //console.log(resp);
-    return await axiosCallDataset(dataset, resp.data.nhits, sqlObj, client)
+
+    return await axiosCallDataset(dataset, resp.data.nhits, dataModel, client)
   } catch (err) {
     console.log(err)
   } finally {
@@ -134,21 +99,13 @@ async function axiosCallNhits(dataset, sqlObj) {
 }
 
 /**
- * Scheduler que corre às 01:00h no primeiro dia de cada mês. 0 1 1 * *
+ * This Scheduler runs every first day of every month at 01:00h. [0 1 1 * *]
  */
-cron.schedule("*/20 * * * * *", async function () {
+cron.schedule("*/30 * * * * *", async function () {
   try {
-    //console.log(hipertensao)
-
-    await axiosCallNhits("hipertensao", dto.hipertensao)
-    await axiosCallNhits("diabetes", dto.diabetes)
+    await axiosCallNhits("hipertensao", dataModels.hipertensao)
+    await axiosCallNhits("diabetes", dataModels.diabetes)
   } catch (err) {
     console.log(err)
   }
 })
-
-//mensal
-//axiosCallNhits("hipertensao", hipertensao);
-
-// mensal
-//axiosCallNhits('diabetes', diabetes);
