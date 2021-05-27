@@ -4,10 +4,10 @@ const indicatorsMethods = require("../methods/indicatorsMethods")
 async function indicatorsController(req, res, next) {
   try {
     await indicatorsModel.validateAsync(req.query)
-    res.json(await indicatorsMethods(req.query))
+    res.status(200).json(await indicatorsMethods(req.query))
   } catch (err) {
     next(err)
-    res.json({
+    res.status(400).json({
       sucess: false,
       message: err.message,
     })

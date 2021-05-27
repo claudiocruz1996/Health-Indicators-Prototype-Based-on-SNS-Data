@@ -49,6 +49,42 @@ const referenciacoes_soep_emitidas_nos_centros_de_saude = sql.define({
   columns: Object.values(mapping["referenciacoes_soep_emitidas_nos_centros_de_saude"]),
 })
 
+/**
+ * This variable define users registered in primary health care Data Model used to convert JSON data into a insert query statement
+ */
+const utentes_inscritos_em_cuidados_de_saude_primarios = sql.define({
+  name: "utentes_inscritos_em_cuidados_de_saude_primarios",
+  columns: Object.values(mapping["utentes_inscritos_em_cuidados_de_saude_primarios"]),
+})
+/**
+ * This variable define users registered in primary health care Data Model used to convert JSON data into a insert query statement
+ */
+const evolucao_do_numero_de_unidades_funcionais = sql.define({
+  name: "evolucao_do_numero_de_unidades_funcionais",
+  columns: Object.values(mapping["evolucao_do_numero_de_unidades_funcionais"]),
+})
+/**
+ * This variable define the nursing contacts in primary health care Data Model used to convert JSON data into a insert query statement
+ */
+const evolucao_dos_contactos_de_enfermagem_nos_csp = sql.define({
+  name: "evolucao_dos_contactos_de_enfermagem_nos_csp",
+  columns: Object.values(mapping["evolucao_dos_contactos_de_enfermagem_nos_csp"]),
+})
+/**
+ * This variable define the access to medical appointments by the enrolled population Data Model used to convert JSON data into a insert query statement
+ */
+const acesso_de_consultas_medicas_pela_populacao_inscrita = sql.define({
+  name: "acesso_de_consultas_medicas_pela_populacao_inscrita",
+  columns: Object.values(mapping["acesso_de_consultas_medicas_pela_populacao_inscrita"]),
+})
+/**
+ * This variable define the medical appointments in primary health care Data Model used to convert JSON data into a insert query statement
+ */
+const evolucao_das_consultas_medicas_nos_csp = sql.define({
+  name: "evolucao_das_consultas_medicas_nos_csp",
+  columns: Object.values(mapping["evolucao_das_consultas_medicas_nos_csp"]),
+})
+
 module.exports = {
   hipertensao,
   diabetes,
@@ -56,4 +92,9 @@ module.exports = {
   rastreios_oncologicos,
   registo_de_testamentos_vitais,
   referenciacoes_soep_emitidas_nos_centros_de_saude,
+  utentes_inscritos_em_cuidados_de_saude_primarios,
+  evolucao_do_numero_de_unidades_funcionais,
+  evolucao_dos_contactos_de_enfermagem_nos_csp,
+  acesso_de_consultas_medicas_pela_populacao_inscrita,
+  evolucao_das_consultas_medicas_nos_csp,
 }

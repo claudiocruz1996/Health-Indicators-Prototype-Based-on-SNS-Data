@@ -9,23 +9,25 @@ const pool = new Pool({
   port: 5433,
 })
 
-async function getAllData(indicator_name) {
+async function getAllData(indicator_name, aces) {
   let response
   try {
     response = await pool.query(`SELECT * 
       FROM ${indicator_name} 
+      WHERE aces LIKE '${aces}'
       ORDER BY tempo DESC`)
     return response.rows
   } catch (error) {
     throw new Error(error)
   }
 }
-async function getDataUntil(indicator_name, end_date) {
+async function getDataUntil(indicator_name, end_date, aces) {
   let response
   try {
     response = await pool.query(`SELECT * 
       FROM ${indicator_name}  
       WHERE tempo <= '${end_date}'
+      AND aces LIKE '${aces}'
       ORDER BY tempo DESC`)
     return response.rows
   } catch (error) {
@@ -33,12 +35,13 @@ async function getDataUntil(indicator_name, end_date) {
   }
 }
 
-async function getDataFrom(indicator_name, start_date) {
+async function getDataFrom(indicator_name, start_date, aces) {
   let response
   try {
     response = await pool.query(`SELECT * 
       FROM ${indicator_name}  
       WHERE tempo >= '${start_date}'
+      AND aces LIKE '${aces}'
       ORDER BY tempo DESC`)
     return response.rows
   } catch (error) {
@@ -46,13 +49,14 @@ async function getDataFrom(indicator_name, start_date) {
   }
 }
 
-async function getDataFromUntil(indicator_name, start_date, end_date) {
+async function getDataFromUntil(indicator_name, start_date, end_date, aces) {
   let response
   try {
     response = await pool.query(`SELECT * 
       FROM ${indicator_name} 
-      WHERE tempo >= '${start_date}'
-      AND tempo <=  '${end_date}'
+      WHERE tempo BETWEEN '${start_date}'
+      AND '${end_date}'
+      AND aces LIKE '${aces}'
       ORDER BY tempo DESC`)
     return response.rows
   } catch (error) {

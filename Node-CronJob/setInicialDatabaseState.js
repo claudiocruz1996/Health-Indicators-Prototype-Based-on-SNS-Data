@@ -79,77 +79,60 @@ async function executeQuery(tableName, data, dataModel, dataset, client, year) {
  * and then calls the function executeQuery().
  * @param {String} tableName This variable stores the table name
  * @param {String} dataset This variable passes the Dataset name
- * @param {Integer} nhits This variable stores the number of rows with data about the dataset called
- * @param {Integer} facet This variable passes the facet name to filter the dataset called by date
  * @param {Object} dataModel This variable loads the Data Model correspond to the dataset called
- * @param {Pool} client This variable contains the database pool connection
  */
-async function axiosCallDataset(tableName, dataset, nhits, facet, dataModel, client) {
+async function axiosCallDataset(tableName, dataset, dataModel) {
   try {
+    const client = await pool.connect()
+    let initialYear = new Date(2013, 01, 01)
+    let currentYear = new Date().getFullYear()
     let rows = 9999
-    let year = new Date().getFullYear()
-    let resTableRow = await client.query(`SELECT COUNT (*) FROM ${tableName};`)
-    if (resTableRow.rows[0].count != nhits) {
-      await client.query(`DELETE FROM ${tableName} WHERE date_part('year', tempo) = ${year};`)
-      const resp = await axios.get(`https://transparencia.sns.gov.pt/api/records/1.0/search/?dataset=${dataset}&rows=${rows}&refine.${facet}=${year}`)
-      return await executeQuery(tableName, resp.data, dataModel, dataset, client, year)
-    } else console.log(`Status:[Normal]  Os dados para o indicador ${dataset} já se encontram atualizados`)
-  } catch (err) {
-    console.log(err.stack)
-  }
-}
-
-/**
- * This function calls the transparency API to get the number of rows in the dataset.
- * @param {String} tableName This variable stores the table name
- * @param {String} dataset This variable passes the Dataset name
- * @param {Object} dataModel This variable loads the Data Model correspond to the dataset called
- */
-async function axiosCallNhits(tableName, dataset, dataModel) {
-  const client = await pool.connect()
-  try {
     const resp = await axios.get(`https://transparencia.sns.gov.pt/api/records/1.0/search/?dataset=${dataset}&rows=1`)
     let facet = "tempo"
     if (resp.data.records[0].fields.periodo) {
       facet = "periodo"
     }
-    await axiosCallDataset(tableName, dataset, resp.data.nhits, facet, dataModel, client)
-  } catch (err) {
-    console.log(err)
-  } finally {
+    while (initialYear.getFullYear() < currentYear) {
+      await client.query(`DELETE FROM ${tableName} WHERE date_part('year', tempo) = ${initialYear.getFullYear()};`)
+      const resp = await axios.get(`https://transparencia.sns.gov.pt/api/records/1.0/search/?dataset=${dataset}&rows=${rows}&refine.${facet}=${initialYear.getFullYear()}`)
+      await executeQuery(tableName, resp.data, dataModel, dataset, client, initialYear.getFullYear())
+      initialYear = new Date(initialYear.setFullYear(initialYear.getFullYear() + 1))
+    }
     client.release()
+  } catch (err) {
+    console.log(err.stack)
   }
 }
 
-/**
- * This Scheduler runs every first day of every month at 01:00h. [0 1 1 * *]
- */
-cron.schedule("* * * * *", async function () {
+async function executePopulation() {
   try {
-    await axiosCallNhits("hipertensao", "hipertensao", dataModels.hipertensao)
-    await axiosCallNhits("diabetes", "diabetes", dataModels.diabetes)
-    await axiosCallNhits("saude_da_mulher_e_crianca", "saude-da-mulher-e-crianca", dataModels.saude_da_mulher_e_crianca)
-    await axiosCallNhits("rastreios_oncologicos", "rastreios-oncologicos", dataModels.rastreios_oncologicos)
-    await axiosCallNhits("registo_de_testamentos_vitais", "registo-de-testamentos-vitais", dataModels.registo_de_testamentos_vitais)
-    await axiosCallNhits(
+    await axiosCallDataset("hipertensao", "hipertensao", dataModels.hipertensao)
+    await axiosCallDataset("diabetes", "diabetes", dataModels.diabetes)
+    await axiosCallDataset("saude_da_mulher_e_crianca", "saude-da-mulher-e-crianca", dataModels.saude_da_mulher_e_crianca)
+    await axiosCallDataset("rastreios_oncologicos", "rastreios-oncologicos", dataModels.rastreios_oncologicos)
+    await axiosCallDataset("registo_de_testamentos_vitais", "registo-de-testamentos-vitais", dataModels.registo_de_testamentos_vitais)
+    await axiosCallDataset(
       "referenciacoes_soep_emitidas_nos_centros_de_saude",
       "referenciacoes-soep-emitidas-nos-centros-de-saude",
       dataModels.referenciacoes_soep_emitidas_nos_centros_de_saude
     )
-    await axiosCallNhits(
+    await axiosCallDataset(
       "utentes_inscritos_em_cuidados_de_saude_primarios",
       "utentes-inscritos-em-cuidados-de-saude-primarios",
       dataModels.utentes_inscritos_em_cuidados_de_saude_primarios
     )
-    await axiosCallNhits("evolucao_do_numero_de_unidades_funcionais", "evolucao-do-numero-de-unidades-funcionais", dataModels.evolucao_do_numero_de_unidades_funcionais)
-    await axiosCallNhits("evolucao_dos_contactos_de_enfermagem_nos_csp", "evolucao-dos-contactos-de-enfermagem-nos-csp", dataModels.evolucao_dos_contactos_de_enfermagem_nos_csp)
-    await axiosCallNhits(
+    await axiosCallDataset("evolucao_do_numero_de_unidades_funcionais", "evolucao-do-numero-de-unidades-funcionais", dataModels.evolucao_do_numero_de_unidades_funcionais)
+    await axiosCallDataset("evolucao_dos_contactos_de_enfermagem_nos_csp", "evolucao-dos-contactos-de-enfermagem-nos-csp", dataModels.evolucao_dos_contactos_de_enfermagem_nos_csp)
+    await axiosCallDataset(
       "acesso_de_consultas_medicas_pela_populacao_inscrita",
       "acesso-de-consultas-medicas-pela-populacao-inscrita",
       dataModels.acesso_de_consultas_medicas_pela_populacao_inscrita
     )
-    await axiosCallNhits("evolucao_das_consultas_medicas_nos_csp", "evolucao-das-consultas-medicas-nos-csp", dataModels.evolucao_das_consultas_medicas_nos_csp)
+    await axiosCallDataset("evolucao_das_consultas_medicas_nos_csp", "evolucao-das-consultas-medicas-nos-csp", dataModels.evolucao_das_consultas_medicas_nos_csp)
+    console.log("Status:[Atualizado] Base de dados populada com sucesso")
   } catch (err) {
-    console.log(err)
+    console.log(err.stack)
   }
-})
+}
+
+executePopulation()
