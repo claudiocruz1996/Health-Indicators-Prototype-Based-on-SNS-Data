@@ -1,10 +1,13 @@
 const indicatorsDatabase = require("../database/indicatorsDatabase")
-
+/**
+ *
+ * @param {*} params
+ */
 async function indicatorsMethods(params) {
   try {
     let response
     const obj = { dataset: "dataset", rows: 0, data: [] }
-    if (params.aces == "" || !params.aces) params.aces = "ACES%"
+    //if (params.aces == "" || !params.aces) params.aces = "ACES%"
     if (!params.start_date && !params.end_date) {
       response = await indicatorsDatabase.getAllData(params.indicator_name, params.aces)
       console.log(`[${params.indicator_name}] -> getAllData`)

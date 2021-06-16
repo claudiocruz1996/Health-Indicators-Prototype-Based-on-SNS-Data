@@ -78,7 +78,7 @@ const indicatorsModel = joi.object().keys({
       "ACES Pinhal Interior Sul",
       "ACES Sao Mamede"
     )
-    .allow(""),
+    .required(),
 })
 
 module.exports = indicatorsModel

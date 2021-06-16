@@ -18,6 +18,12 @@ const router = express.Router()
  *        required: true
  *        type: string
  *        example: hipertensao
+ *      - name: aces
+ *        in: query
+ *        description: name of the ACES (Grouping of Health Centers)
+ *        required: true
+ *        type: string
+ *        example: ACES Almada-Seixal
  *      - name: start_date
  *        in: query
  *        description: Start search from
@@ -30,12 +36,6 @@ const router = express.Router()
  *        required: false
  *        type: date
  *        example: 2021/12/01
- *      - name: aces
- *        in: query
- *        description: name of the ACES (Grouping of Health Centers)
- *        required: false
- *        type: string
- *        example: ACES Almada-Seixal
  *     responses:
  *       200:
  *         description: A list of a certain health indicator.
@@ -90,25 +90,20 @@ const router = express.Router()
  *                         description: ACES (Grouping of Health Centers) where the indicator was collected.
  *                         example: ACES Almada-Seixal
  *       400:
- *         description: A list of users.
+ *         description: A message explaining the reason for the failure.
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                         description: The user ID.
- *                         example: 0
- *                       name:
- *                         type: string
- *                         description: The user's name.
- *                         example: Leanne Graham
+ *                sucess:
+ *                  type: bollean
+ *                  description: Sucess of the response.
+ *                  example: false
+ *                message:
+ *                  type: string
+ *                  description: The user's name.
+ *                  example: "\"end_date\" must be in YYYY/MM/DD format"
  */
 router.get("/indicator", indicatorsController)
 
