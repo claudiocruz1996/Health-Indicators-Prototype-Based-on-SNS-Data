@@ -1,9 +1,9 @@
 import React from "react"
 import ReactDOM from "react-dom"
-import App from "./components/App"
+import App from "./components/app/App"
 import CssBaseline from "@material-ui/core/CssBaseline"
 import { ThemeProvider } from "@material-ui/core/styles"
-import theme from "./components/theme/Theme"
+import theme from "./styles/Theme"
 import { BrowserRouter } from "react-router-dom"
 
 /* import axios from "axios"

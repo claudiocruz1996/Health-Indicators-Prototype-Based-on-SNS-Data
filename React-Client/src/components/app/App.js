@@ -1,4 +1,4 @@
-import Layout from "./layout/Layout"
+import Layout from "../layout/Layout"
 import { makeStyles } from "@material-ui/core/styles"
 
 const useStyles = makeStyles((theme) => ({
