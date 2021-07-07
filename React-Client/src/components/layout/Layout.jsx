@@ -24,7 +24,7 @@ import { Link } from "react-router-dom";
 import ReactRouter from '../../Routes';
 
 
-const drawerWidth = 240;
+const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -71,9 +71,9 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.leavingScreen,
     }),
     overflowX: 'hidden',
-    width: theme.spacing(7) + 1,
+    width: theme.spacing(5)+1,
     [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9) + 1,
+      width: theme.spacing(7)+1,
     },
   },
   toolbar: {
@@ -87,10 +87,12 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
+    overflowX:'auto'
   },
   iconsDrawer: {
     color: teal[500],
   },
+
 }));
 
 export default function Layout() {
@@ -153,7 +155,7 @@ export default function Layout() {
         <Divider />
         <List>
         <ListItem button component={Link} to={"/"}>
-                <ListItemIcon className={classes.iconsDrawer}><WarningIcon/></ListItemIcon>
+                <ListItemIcon  className={classes.iconsDrawer}><WarningIcon/></ListItemIcon>
                 <ListItemText className={classes.iconsDrawer}>Home</ListItemText>
         </ListItem>
         <ListItem button component={Link} to={"/dashboard"} >

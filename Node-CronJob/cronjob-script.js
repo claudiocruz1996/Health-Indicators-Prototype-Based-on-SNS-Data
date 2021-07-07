@@ -6,6 +6,7 @@ const mapping = require("../Node-CronJob/maps")
 const dataModels = require("./dataModels")
 const acesList = require("./aceList")
 const stringSimilarity = require("string-similarity")
+const jsonPopulacaoResidentePorAces = require("./populacaoResidentePorAces")
 
 const pool = new Pool({
   user: "claudio",
@@ -32,8 +33,23 @@ function acesFixing(string) {
   return stringSimilarity.findBestMatch(string, acesList).bestMatch.target
 }
 
+function contagemNormalization(value, aces) {
+  let totalPopulationAces
+  let valuePer100k
+
+  jsonPopulacaoResidentePorAces.forEach((element) => {
+    if (element.aces == acesFixing(aces)) {
+      totalPopulationAces = element.populacaoTotal
+    }
+  })
+
+  valuePer100k = ((value / totalPopulationAces) * 100000).toFixed(2)
+
+  return valuePer100k
+}
+
 /**
- * This function creates a new object from the recived data, then it deletes all rows present on the dataset table, and inserts the new freshly created object data.
+ * This function creates a new object from the recived data, and then it inserts the new freshly created object data.
  * @param {String} tableName This variable stores the table name
  * @param {JSON Object} data This variable stores a JSON with all data about the dataset called
  * @param {Object} dataModel This variable loads the Data Model correspond to the dataset called
@@ -60,11 +76,38 @@ async function executeQuery(tableName, data, dataModel, dataset, client, year) {
             }
             data[mapping[tableName][field]] = element.fields[field]
           }
+
+          if (
+            field != "ponto_ou_localizacao_geografica" &&
+            field != "localizacao_geografica" &&
+            field != "tempo" &&
+            field != "periodo" &&
+            field != "entidade" &&
+            field != "aces" &&
+            field != "regiao" &&
+            field != "ars" &&
+            field != "sexo"
+          ) {
+            data[mapping[tableName][field] + "_norm"] = mapping[tableName][field].includes("cntg")
+              ? contagemNormalization(element.fields[field], element.fields[element.fields["aces"] != null ? "aces" : "entidade"])
+              : element.fields[field]
+          }
         }
       })
       myNewObject.push(data)
     })
 
+    myNewObject.forEach((myNewObjectElement) => {
+      const prctg = Object.keys(myNewObjectElement).filter((x) => x.includes("prctg") && x.includes("norm"))
+      const cntg = Object.keys(myNewObjectElement).filter((x) => x.includes("cntg") && x.includes("norm"))
+
+      prctg.forEach((prctgElement) => {
+        let cntgMatchKeyString = stringSimilarity.findBestMatch(prctgElement, cntg).bestMatch.target
+        myNewObjectElement[prctgElement] = (myNewObjectElement[prctgElement] * (myNewObjectElement[cntgMatchKeyString] / 100.0)).toFixed(2)
+      })
+    })
+
+    //console.log(myNewObject)
     let datasetInsert = dataModel.insert(myNewObject).toQuery()
     await client.query(datasetInsert)
     console.log(`Status:[Atualizado]  Os dados para o indicador ${dataset} foram atualizados para o ano de ${year}`)
@@ -124,12 +167,12 @@ async function axiosCallNhits(tableName, dataset, dataModel) {
 /**
  * This Scheduler runs every first day of every month at 01:00h. [0 1 1 * *]
  */
-cron.schedule("* * * * *", async function () {
+cron.schedule("*/20 * * * * *", async function () {
   try {
     await axiosCallNhits("hipertensao", "hipertensao", dataModels.hipertensao)
-    await axiosCallNhits("diabetes", "diabetes", dataModels.diabetes)
-    await axiosCallNhits("saude_da_mulher_e_crianca", "saude-da-mulher-e-crianca", dataModels.saude_da_mulher_e_crianca)
-    await axiosCallNhits("rastreios_oncologicos", "rastreios-oncologicos", dataModels.rastreios_oncologicos)
+    //await axiosCallNhits("diabetes", "diabetes", dataModels.diabetes)
+    //await axiosCallNhits("saude_da_mulher_e_crianca", "saude-da-mulher-e-crianca", dataModels.saude_da_mulher_e_crianca)
+    /*await axiosCallNhits("rastreios_oncologicos", "rastreios-oncologicos", dataModels.rastreios_oncologicos)
     await axiosCallNhits("registo_de_testamentos_vitais", "registo-de-testamentos-vitais", dataModels.registo_de_testamentos_vitais)
     await axiosCallNhits(
       "referenciacoes_soep_emitidas_nos_centros_de_saude",
@@ -148,7 +191,7 @@ cron.schedule("* * * * *", async function () {
       "acesso-de-consultas-medicas-pela-populacao-inscrita",
       dataModels.acesso_de_consultas_medicas_pela_populacao_inscrita
     )
-    await axiosCallNhits("evolucao_das_consultas_medicas_nos_csp", "evolucao-das-consultas-medicas-nos-csp", dataModels.evolucao_das_consultas_medicas_nos_csp)
+    await axiosCallNhits("evolucao_das_consultas_medicas_nos_csp", "evolucao-das-consultas-medicas-nos-csp", dataModels.evolucao_das_consultas_medicas_nos_csp) */
   } catch (err) {
     console.log(err)
   }

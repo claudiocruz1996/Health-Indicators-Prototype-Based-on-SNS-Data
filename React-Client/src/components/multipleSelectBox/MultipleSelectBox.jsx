@@ -1,17 +1,58 @@
 import React, { PureComponent } from "react"
 import { Label, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, ReferenceArea, ResponsiveContainer } from "recharts"
+import Paper from '@material-ui/core/Paper';
 import randomFloat from "random-float"
 import randomColor from "randomcolor"
 
-const initialData = [
-  { name: 1, cost: randomFloat(0, 1), impression: randomFloat(0, 1), x: randomFloat(0, 1) },
-  { name: 2, cost: randomFloat(0, 1), impression: randomFloat(0, 1), x: randomFloat(0, 1) },
-  { name: 3, cost: randomFloat(0, 1), impression: randomFloat(0, 1), x: randomFloat(0, 1) },
-  { name: 4, cost: randomFloat(0, 1), impression: randomFloat(0, 1), x: randomFloat(0, 1) },
-  { name: 5, cost: randomFloat(0, 1), impression: randomFloat(0, 1), x: randomFloat(0, 1) },
-  { name: 6, cost: randomFloat(0, 1), impression: randomFloat(0, 1), x: randomFloat(0, 1) },
-  { name: 7, cost: randomFloat(0, 1), impression: randomFloat(0, 1), x: randomFloat(0, 1) },
-]
+const dataA =  [
+    {
+      date: "May 2021",
+      info: [
+        {
+          aces: "ACES Sao Mamede",
+          value: 3101.95
+        }
+      ]
+    },
+    {
+      date: "Apr 2021",
+      info: [
+        {
+          aces: "ACES Sao Mamede",
+          value: 2597.34
+        }
+      ]
+    },
+    {
+      date: "Mar 2021",
+      info: [
+        {
+          aces: "ACES Sao Mamede",
+          value: 1997.37
+        }
+      ]
+    },
+    {
+      date: "Feb 2021",
+      info: [
+        {
+          aces: "ACES Sao Mamede",
+          value: 1268.29
+        }
+      ]
+    },
+    {
+      date: "Jan 2021",
+      info: [
+        {
+          aces: "ACES Sao Mamede",
+          value: 686.89
+        }
+      ]
+    }
+  ]
+
+
 const dataTest =[ 
   {
     tempo: "Dez 2020",
@@ -100,114 +141,8 @@ const dataTest =[
   },
 ];
 
-
-const dataTest2 =[ 
-  { 
-    tempo: "Dez 2020",
-    test: [
-      {
-        aces:"ACES A",
-        valor: randomFloat(0,1)
-      },
-      {
-        aces:"ACES B",
-        valor: randomFloat(0,1)
-      },
-      {
-        aces:"ACES C",
-        valor: randomFloat(0,1)
-      },
-    ] 
-  },
-  { 
-    tempo: "Fev 2021",
-    test: [
-      {
-        aces:"ACES A",
-        valor: randomFloat(0,1)
-      },
-      {
-        aces:"ACES B",
-        valor: randomFloat(0,1)
-      },
-      {
-        aces:"ACES C",
-        valor: randomFloat(0,1)
-      },
-    ] 
-  },
-  { 
-    tempo: "Mar 2021",
-    test: [
-      {
-        aces:"ACES A",
-        valor: randomFloat(0,1)
-      },
-      {
-        aces:"ACES B",
-        valor: randomFloat(0,1)
-      },
-      {
-        aces:"ACES C",
-        valor: randomFloat(0,1)
-      },
-    ] 
-  },
-  { 
-    tempo: "Mai 2021",
-    test: [
-      {
-        aces:"ACES A",
-        valor: randomFloat(0,1)
-      },
-      {
-        aces:"ACES B",
-        valor: randomFloat(0,1)
-      },
-      {
-        aces:"ACES C",
-        valor: randomFloat(0,1)
-      },
-    ] 
-  },
-  { 
-    tempo: "Jun 2021",
-    test: [
-      {
-        aces:"ACES A",
-        valor: randomFloat(0,1)
-      },
-      {
-        aces:"ACES B",
-        valor: randomFloat(0,1)
-      },
-      {
-        aces:"ACES C",
-        valor: randomFloat(0,1)
-      },
-    ] 
-  },
-
-
-];
-/* const getAxisYDomain = (from, to, offset) => {
-  debugger
-  let indexFrom = dataTest.findIndex(x => x.tempo == from);
-  let indexTo = dataTest.findIndex(x => x.tempo == to);
-  const refData = dataTest.slice(indexFrom , indexTo )
-  let [bottom, top] = [refData[0].test[0].valor, refData[0].test[0].valor]
-  refData.forEach((d) => {
-    if (d.test[0].valor > top) top = d.test[0].valor
-    if (d.test[0].valor < bottom) bottom = d.test[0].valor
-  })
-
-  return [bottom | 0, (top | 0) + offset] 
-
-
-} */
-
 const initialState = {
-  data: dataTest,
+  data: dataA,
   left: "dataMin",
   right: "dataMax",
   refAreaLeft: "",
@@ -238,13 +173,9 @@ export default class Example extends PureComponent {
       }))
       return
     }
-    // xAxis domain
-/*     if (refAreaLeft > refAreaRight) [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft] */
-    // yAxis domain
- /*    const [bottom, top] = getAxisYDomain(refAreaLeft, refAreaRight, 1)*/
-  
-    let indexFrom = data.findIndex(x => x.tempo == refAreaLeft);
-    let indexTo = data.findIndex(x => x.tempo == refAreaRight);
+ 
+    let indexFrom = data.findIndex(x => x.date == refAreaLeft);
+    let indexTo = data.findIndex(x => x.date == refAreaRight);
     const sliced = data.slice(indexFrom , indexTo+1 ) 
 
     this.setState(() => ({
@@ -274,11 +205,11 @@ export default class Example extends PureComponent {
     const { data, barIndex, left, right, refAreaLeft, refAreaRight, top, bottom } = this.state
 
     return (
-      <div className="highlight-bar-charts" style={{ userSelect: "none", width: "100%" }}>
+      <div className="highlight-bar-charts" style={{ userSelect: "none", width: "100%" }}>    
+
         <button type="button" className="btn update" onClick={this.zoomOut.bind(this)}>
           Zoom Out
         </button>
-
         <ResponsiveContainer width="100%" height={400}>
           <LineChart
             width={800}
@@ -290,19 +221,16 @@ export default class Example extends PureComponent {
             onMouseUp={this.zoom.bind(this)}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis allowDataOverflow dataKey="tempo" domain={[left, right]} type="category"/>
-            {/* <XAxis allowDataOverflow dataKey="name" domain={[left, right]} type="number" /> */}
-            <YAxis allowDataOverflow domain={[0, 1]} type="number" yAxisId="1" />
+            <XAxis allowDataOverflow dataKey="date" domain={[left, right]} type="category"/>
+            <YAxis allowDataOverflow domain={[0, 100000]} type="number" yAxisId="1" />
             <Tooltip />
-{/*             <Line yAxisId="1" type="natural" dataKey="cost" stroke="#8884d8" animationDuration={300} />
-            <Line yAxisId="1" type="natural" dataKey="impression" stroke="#82ca9d" animationDuration={300} /> */}
-            <Line yAxisId="1" type="monotone" name={dataTest[0].test[0].aces} dataKey="test[0].valor" stroke={randomColor()} animationDuration={300} />
-{/*             <Line yAxisId="1" type="monotone" name={dataTest[0].test[1].aces} dataKey="test[1].valor" stroke={randomColor()} animationDuration={300} />
-            <Line yAxisId="1" type="monotone" name={dataTest[0].test[2].aces} dataKey="test[2].valor" stroke={randomColor()} animationDuration={300} /> */}
+            <Line yAxisId="1" type="monotone" name={dataA[0].info[0].aces} dataKey="info[0].value" stroke={"red"} animationDuration={300} />
+ 
 
             {refAreaLeft && refAreaRight ? <ReferenceArea yAxisId="1" x1={refAreaLeft} x2={refAreaRight} strokeOpacity={0.3} /> : null}
           </LineChart>
         </ResponsiveContainer>
+
       </div>
     )
   }

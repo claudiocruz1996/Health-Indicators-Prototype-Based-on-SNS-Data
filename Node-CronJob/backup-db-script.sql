@@ -10,11 +10,13 @@ CREATE SEQUENCE hipertensao_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MIN
 CREATE TABLE public.hipertensao
 (
     id integer NOT NULL DEFAULT nextval('hipertensao_id_seq'::regclass),
-	utentes_hipertensao_pa_menor_150_90_mmhg_n integer NOT NULL,
+	cntg_hipertensos_pa_menor_150_90_mmhg_n integer NOT NULL,
+    cntg_hipertensos_pa_menor_150_90_mmhg_n_norm real NOT NULL,
     regiao character varying(250) COLLATE pg_catalog."default" NOT NULL,
 	lat double precision NOT NULL,
     long double precision NOT NULL,
-    hipertensos_65_anos_pa_150_90 real NOT NULL,
+    prctg_hipertensos_menores_65a_pa_menor_150_90_mmhg_n real NOT NULL,
+    prctg_hipertensos_menores_65a_pa_menor_150_90_mmhg_n_norm real NOT NULL,
     tempo date NOT NULL,
     aces character varying(250) COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT hipertensao_pkey PRIMARY KEY (id)

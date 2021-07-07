@@ -53,7 +53,7 @@ async function getDataFrom(indicator_name, start_date) {
 async function getDataFromUntil(indicator_name, start_date, end_date) {
   let response
   try {
-    response = await pool.query(`Select utentes_hipertensao_pa_menor_150_90_mmhg_n as value, aces, TO_CHAR(tempo, 'Mon YYYY') as date
+    response = await pool.query(`Select cntg_hipertensos_pa_menor_150_90_mmhg_n_norm as value, aces, TO_CHAR(tempo, 'Mon YYYY') as date
       FROM ${indicator_name} 
       WHERE tempo BETWEEN '${start_date}'
       AND '${end_date}'

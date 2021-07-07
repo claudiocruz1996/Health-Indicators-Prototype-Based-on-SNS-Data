@@ -24,10 +24,10 @@ const useStyles = makeStyles((theme) => ({
 export default function Dashboard() {
     const classes = useStyles();
     return (
-        <div>
+        <>
+         {/* title component */}
          <h1>Dashboard Data</h1>
           <br/>
-          {/* component */}
             <div className={classes.root}>
                 <Paper className={classes.paper}>
                     <Grid container spacing={2}  justify="center">
@@ -51,8 +51,9 @@ export default function Dashboard() {
                 </Paper>
             </div>
             <br/>
-           <SimpleLineChart/>
-           <MultipleSelectBox/>
-        </div>
+            <Paper>
+              <MultipleSelectBox/>
+            </Paper>
+        </>
     )
 }
