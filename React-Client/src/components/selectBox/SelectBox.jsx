@@ -1,9 +1,9 @@
 /* eslint-disable no-use-before-define */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 
-export default function ComboBox({mainTitle}) {
+/* export default function ComboBox({mainTitle, indicator}) {
   return (
     <Autocomplete
       id="combo-box-demo"
@@ -22,4 +22,47 @@ const top100Films = [
   { title: 'The Godfather: Part II', year: 1974 },
   { title: 'The Dark Knight', year: 2008 },
   { title: '12 Angry Men', year: 1957 },
+]; */
+
+export default function ComboBox({mainTitle}) {
+
+  const [indicator, setIndicator] = useState({ title: "Hipertensao", dataset: "hipertensao" });
+
+  
+/*   useEffect(() => 
+  alert(indicator.dataset),
+  alert(indicator.title)
+  ); */
+
+  function onTagsChange(event, values){
+    setIndicator({
+      title: values.title,
+      dataset: values.dataset
+    })
+    
+  }
+
+    return (
+      <div style={{ width: 500 }}>
+        <Autocomplete
+          id="combo-box-demo"
+          disableClearable
+          options={indicators}
+          defaultValue={indicator}
+          getOptionLabel={(option) => option.title}
+          style={{ width: 500 }}
+          onChange={onTagsChange}
+          renderInput={params => (
+            <TextField {...params} label={mainTitle} variant="outlined" />
+          )}
+        />
+      </div>
+    );
+  
+}
+
+const indicators = [
+  { title: 'Hipertensao', dataset: "hipertensao" },
+  { title: 'Diabetes', dataset: "diabetes" },
+  { title: 'Saúde da mulher e da crianca', dataset: "saude_da_mulher_e_crianca" },
 ];

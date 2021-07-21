@@ -120,6 +120,12 @@ router.get("/indicator", indicatorsController)
  *        required: true
  *        type: string
  *        example: hipertensao
+ *      - name: subIndicator_name
+ *        in: query
+ *        description: Name of the subindicator to be searched
+ *        required: true
+ *        type: string
+ *        example: cntg_hipertensos_pa_menor_150_90_mmhg_n_norm
  *      - name: start_date
  *        in: query
  *        description: Start search from

@@ -86,7 +86,8 @@ async function executeQuery(tableName, data, dataModel, dataset, client, year) {
             field != "aces" &&
             field != "regiao" &&
             field != "ars" &&
-            field != "sexo"
+            field != "sexo" &&
+            field != "faixa_etaria"
           ) {
             data[mapping[tableName][field] + "_norm"] = mapping[tableName][field].includes("cntg")
               ? contagemNormalization(element.fields[field], element.fields[element.fields["aces"] != null ? "aces" : "entidade"])
@@ -167,31 +168,32 @@ async function axiosCallNhits(tableName, dataset, dataModel) {
 /**
  * This Scheduler runs every first day of every month at 01:00h. [0 1 1 * *]
  */
-cron.schedule("*/20 * * * * *", async function () {
+cron.schedule("*/5 * * * *", async function () {
   try {
+    console.log("cronjob as started!")
     await axiosCallNhits("hipertensao", "hipertensao", dataModels.hipertensao)
-    //await axiosCallNhits("diabetes", "diabetes", dataModels.diabetes)
-    //await axiosCallNhits("saude_da_mulher_e_crianca", "saude-da-mulher-e-crianca", dataModels.saude_da_mulher_e_crianca)
-    /*await axiosCallNhits("rastreios_oncologicos", "rastreios-oncologicos", dataModels.rastreios_oncologicos)
+    await axiosCallNhits("diabetes", "diabetes", dataModels.diabetes)
+    await axiosCallNhits("saude_da_mulher_e_crianca", "saude-da-mulher-e-crianca", dataModels.saude_da_mulher_e_crianca)
+    await axiosCallNhits("rastreios_oncologicos", "rastreios-oncologicos", dataModels.rastreios_oncologicos)
     await axiosCallNhits("registo_de_testamentos_vitais", "registo-de-testamentos-vitais", dataModels.registo_de_testamentos_vitais)
     await axiosCallNhits(
       "referenciacoes_soep_emitidas_nos_centros_de_saude",
       "referenciacoes-soep-emitidas-nos-centros-de-saude",
       dataModels.referenciacoes_soep_emitidas_nos_centros_de_saude
     )
-    await axiosCallNhits(
-      "utentes_inscritos_em_cuidados_de_saude_primarios",
-      "utentes-inscritos-em-cuidados-de-saude-primarios",
-      dataModels.utentes_inscritos_em_cuidados_de_saude_primarios
-    )
+    await axiosCallNhits("evolucao_das_consultas_medicas_nos_csp", "evolucao-das-consultas-medicas-nos-csp", dataModels.evolucao_das_consultas_medicas_nos_csp)
     await axiosCallNhits("evolucao_do_numero_de_unidades_funcionais", "evolucao-do-numero-de-unidades-funcionais", dataModels.evolucao_do_numero_de_unidades_funcionais)
     await axiosCallNhits("evolucao_dos_contactos_de_enfermagem_nos_csp", "evolucao-dos-contactos-de-enfermagem-nos-csp", dataModels.evolucao_dos_contactos_de_enfermagem_nos_csp)
-    await axiosCallNhits(
+    /*     await axiosCallNhits(
       "acesso_de_consultas_medicas_pela_populacao_inscrita",
       "acesso-de-consultas-medicas-pela-populacao-inscrita",
       dataModels.acesso_de_consultas_medicas_pela_populacao_inscrita
-    )
-    await axiosCallNhits("evolucao_das_consultas_medicas_nos_csp", "evolucao-das-consultas-medicas-nos-csp", dataModels.evolucao_das_consultas_medicas_nos_csp) */
+    ) */
+    /*     await axiosCallNhits(
+      "utentes_inscritos_em_cuidados_de_saude_primarios",
+      "utentes-inscritos-em-cuidados-de-saude-primarios",
+      dataModels.utentes_inscritos_em_cuidados_de_saude_primarios
+    ) */
   } catch (err) {
     console.log(err)
   }

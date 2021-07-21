@@ -6,6 +6,7 @@ const mapping = require("../Node-CronJob/maps")
 const dataModels = require("./dataModels")
 const acesList = require("./aceList")
 const stringSimilarity = require("string-similarity")
+const jsonPopulacaoResidentePorAces = require("./populacaoResidentePorAces")
 
 const pool = new Pool({
   user: "claudio",
@@ -32,8 +33,23 @@ function acesFixing(string) {
   return stringSimilarity.findBestMatch(string, acesList).bestMatch.target
 }
 
+function contagemNormalization(value, aces) {
+  let totalPopulationAces
+  let valuePer100k
+
+  jsonPopulacaoResidentePorAces.forEach((element) => {
+    if (element.aces == acesFixing(aces)) {
+      totalPopulationAces = element.populacaoTotal
+    }
+  })
+
+  valuePer100k = ((value / totalPopulationAces) * 100000).toFixed(2)
+
+  return valuePer100k
+}
+
 /**
- * This function creates a new object from the recived data, then it deletes all rows present on the dataset table, and inserts the new freshly created object data.
+ * This function creates a new object from the recived data, and then it inserts the new freshly created object data.
  * @param {String} tableName This variable stores the table name
  * @param {JSON Object} data This variable stores a JSON with all data about the dataset called
  * @param {Object} dataModel This variable loads the Data Model correspond to the dataset called
@@ -60,9 +76,37 @@ async function executeQuery(tableName, data, dataModel, dataset, client, year) {
             }
             data[mapping[tableName][field]] = element.fields[field]
           }
+
+          if (
+            field != "ponto_ou_localizacao_geografica" &&
+            field != "localizacao_geografica" &&
+            field != "tempo" &&
+            field != "periodo" &&
+            field != "entidade" &&
+            field != "aces" &&
+            field != "regiao" &&
+            field != "ars" &&
+            field != "sexo" &&
+            field != "faixa_etaria" &&
+            !field.includes("taxa")
+          ) {
+            data[mapping[tableName][field] + "_norm"] = mapping[tableName][field].includes("cntg")
+              ? contagemNormalization(element.fields[field], element.fields[element.fields["aces"] != null ? "aces" : "entidade"])
+              : element.fields[field]
+          }
         }
       })
       myNewObject.push(data)
+    })
+
+    myNewObject.forEach((myNewObjectElement) => {
+      const prctg = Object.keys(myNewObjectElement).filter((x) => x.includes("prctg") && x.includes("norm"))
+      const cntg = Object.keys(myNewObjectElement).filter((x) => x.includes("cntg") && x.includes("norm"))
+
+      prctg.forEach((prctgElement) => {
+        let cntgMatchKeyString = stringSimilarity.findBestMatch(prctgElement, cntg).bestMatch.target
+        myNewObjectElement[prctgElement] = (myNewObjectElement[prctgElement] * (myNewObjectElement[cntgMatchKeyString] / 100.0)).toFixed(2)
+      })
     })
 
     let datasetInsert = dataModel.insert(myNewObject).toQuery()
@@ -116,19 +160,20 @@ async function executePopulation() {
       "referenciacoes-soep-emitidas-nos-centros-de-saude",
       dataModels.referenciacoes_soep_emitidas_nos_centros_de_saude
     )
-    await axiosCallDataset(
-      "utentes_inscritos_em_cuidados_de_saude_primarios",
-      "utentes-inscritos-em-cuidados-de-saude-primarios",
-      dataModels.utentes_inscritos_em_cuidados_de_saude_primarios
-    )
+    await axiosCallDataset("evolucao_das_consultas_medicas_nos_csp", "evolucao-das-consultas-medicas-nos-csp", dataModels.evolucao_das_consultas_medicas_nos_csp)
     await axiosCallDataset("evolucao_do_numero_de_unidades_funcionais", "evolucao-do-numero-de-unidades-funcionais", dataModels.evolucao_do_numero_de_unidades_funcionais)
     await axiosCallDataset("evolucao_dos_contactos_de_enfermagem_nos_csp", "evolucao-dos-contactos-de-enfermagem-nos-csp", dataModels.evolucao_dos_contactos_de_enfermagem_nos_csp)
-    await axiosCallDataset(
+    /*      await axiosCallDataset(
       "acesso_de_consultas_medicas_pela_populacao_inscrita",
       "acesso-de-consultas-medicas-pela-populacao-inscrita",
       dataModels.acesso_de_consultas_medicas_pela_populacao_inscrita
-    )
-    await axiosCallDataset("evolucao_das_consultas_medicas_nos_csp", "evolucao-das-consultas-medicas-nos-csp", dataModels.evolucao_das_consultas_medicas_nos_csp)
+    ) */
+    /* await axiosCallDataset(
+      "utentes_inscritos_em_cuidados_de_saude_primarios",
+      "utentes-inscritos-em-cuidados-de-saude-primarios",
+      dataModels.utentes_inscritos_em_cuidados_de_saude_primarios
+    ) */
+
     console.log("Status:[Atualizado] Base de dados populada com sucesso")
   } catch (err) {
     console.log(err.stack)

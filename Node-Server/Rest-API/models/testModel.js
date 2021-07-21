@@ -17,6 +17,14 @@ const testModel = joi.object().keys({
       "evolucao_das_consultas_medicas_nos_csp"
     )
     .required(),
+  subIndicator_name: joi
+    .string()
+    .valid(
+      "cntg_hipertensos_pa_menor_150_90_mmhg_n",
+      "prctg_hipertensos_menores_65a_pa_menor_150_90_mmhg_n",
+      "cntg_hipertensos_pa_menor_150_90_mmhg_n_norm",
+      "prctg_hipertensos_menores_65a_pa_menor_150_90_mmhg_n_norm"
+    ),
   start_date: joi.date().format("YYYY/MM/DD").utc(),
   end_date: joi.date().format("YYYY/MM/DD").utc(),
 })
