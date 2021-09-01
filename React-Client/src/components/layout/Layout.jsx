@@ -1,4 +1,4 @@
-import React from 'react';
+/*import React from 'react';
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -28,7 +28,8 @@ const drawerWidth = 200;
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: 'flex',
+    display: "flex",
+    flex: 1
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
@@ -86,8 +87,9 @@ const useStyles = makeStyles((theme) => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing(3),
-    overflowX:'auto'
+    padding: theme.spacing(2,3,0,2),
+    height: window.innerHeight, // <= You Need This Line
+    background: "white"
   },
   iconsDrawer: {
     color: teal[500],
@@ -172,4 +174,119 @@ export default function Layout() {
 
     </div>
   );
+}*/
+
+import React from 'react';
+//Material UI Core
+import { makeStyles } from '@material-ui/core/styles';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+//Routes
+import ReactRouter from '../../Routes';
+//
+import clsx from 'clsx';
+import Drawer from '@material-ui/core/Drawer';
+import Button from '@material-ui/core/Button';
+import List from '@material-ui/core/List';
+import Divider from '@material-ui/core/Divider';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import InboxIcon from '@material-ui/icons/MoveToInbox';
+import MailIcon from '@material-ui/icons/Mail';
+import BarChartIcon from '@material-ui/icons/BarChart';
+import BlockIcon from '@material-ui/icons/Block';
+import WarningIcon from '@material-ui/icons/Warning';
+import { teal } from '@material-ui/core/colors';
+import { Link } from "react-router-dom";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  title: {
+    flexGrow: 1,
+  },
+  toolbar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    padding: theme.spacing(0, 1),
+    // necessary for content to be below app bar
+    ...theme.mixins.toolbar,
+  },
+  content: {
+    flexGrow: 1,
+    height: window.innerHeight, // <= You Need This Line
+    background: "white"
+  },
+  iconsDrawer: {
+    color: teal[500],
+  },
+  drawer: {
+    width: 200
+  },
+
+}));
+
+export default function ButtonAppBar() {
+  const classes = useStyles();
+  const [state, setState] = React.useState({
+    left: false,
+  });
+
+  const toggleMyDrawer = (open) => (event) => {
+    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+    setState({ ...state, ['left']: open });
+  };
+
+
+  return (
+    <div className={classes.root}>
+      <AppBar position="fixed">
+        <Toolbar>
+          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={toggleMyDrawer(true)}>
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" className={classes.title}>
+            Monitor da Saúde
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Drawer anchor={'left'} open={state['left']} onClose={toggleMyDrawer(false) } >
+        <div
+        className={classes.drawer}
+        role="presentation"
+        onClick={toggleMyDrawer(false)}
+        onKeyDown={toggleMyDrawer(false)}
+       >
+          <Divider />
+            <List>
+            <ListItem button component={Link} to={"/"}>
+                    <ListItemIcon  className={classes.iconsDrawer}><WarningIcon/></ListItemIcon>
+                    <ListItemText className={classes.iconsDrawer}>Home</ListItemText>
+            </ListItem>
+            <ListItem button component={Link} to={"/dashboard"} >
+                  <ListItemIcon className={classes.iconsDrawer}><BarChartIcon/></ListItemIcon>
+                  <ListItemText className={classes.iconsDrawer}>Dashboard</ListItemText>
+            </ListItem>
+            </List>
+            <Divider />
+        </div>
+      </Drawer>
+      <main className={classes.content}>
+        <div className={classes.toolbar} />
+        <ReactRouter/>
+      </main>
+    </div>
+  );
 }
+

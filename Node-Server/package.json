@@ -19,6 +19,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "joi": "^17.4.0",
+    "moment": "^2.29.1",
     "pg": "^8.6.0",
     "swagger-jsdoc": "5.0.1",
     "swagger-ui-express": "^4.1.6"

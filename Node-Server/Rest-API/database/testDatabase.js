@@ -54,7 +54,7 @@ async function getDataFrom(indicator_name, start_date) {
 async function getDataFromUntil(indicator_name, subIndicator_name, start_date, end_date) {
   let response
   try {
-    response = await pool.query(`Select ${subIndicator_name} as value, aces, TO_CHAR(tempo, 'Mon YYYY') as date
+    response = await pool.query(`Select ${subIndicator_name} as value, aces, TO_CHAR(tempo, 'YYYY-MM-DD') as date
       FROM ${indicator_name} 
       WHERE tempo BETWEEN '${start_date}'
       AND '${end_date}'
