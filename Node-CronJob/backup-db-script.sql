@@ -209,7 +209,7 @@ CREATE TABLE public.evolucao_dos_contactos_de_enfermagem_nos_csp
     cntg_nmr_contactos_enfermagem_presenciais integer NOT NULL,
     cntg_nmr_contactos_enfermagem_presenciais_norm real NOT NULL,
     CONSTRAINT evolucao_dos_contactos_de_enfermagem_nos_csp_pkey PRIMARY KEY (id)
-)
+);
 
 CREATE SEQUENCE acesso_de_consultas_medicas_pela_populacao_inscrita_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
 
@@ -226,7 +226,7 @@ CREATE TABLE public.acesso_de_consultas_medicas_pela_populacao_inscrita
     long double precision NOT NULL,
     utentes_pelo_menos_1_consulta_presencial_ou_nao_1_ano integer NOT NULL,
     CONSTRAINT acesso_de_consultas_medicas_pela_populacao_inscrita_pkey PRIMARY KEY (id)
-)
+);
 
 CREATE SEQUENCE evolucao_das_consultas_medicas_nos_csp_id_seq AS integer START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE CACHE 1;
 
@@ -245,7 +245,7 @@ CREATE TABLE public.evolucao_das_consultas_medicas_nos_csp
     cntg_consultas_medicas_ao_domicilio_norm real,
     aces character varying(250) COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT evolucao_das_consultas_medicas_nos_csp_pkey PRIMARY KEY (id)
-)
+);
 
 
 TABLESPACE pg_default;
