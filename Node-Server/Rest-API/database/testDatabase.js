@@ -4,9 +4,9 @@ const pool = new Pool({
   user: "claudio",
   host: "localhost",
   database: "MDS",
-  password: "postgres",
+  password: "qwerty",
   dialect: "postgres",
-  port: 5433,
+  port: 5432,
 })
 /**
  *
