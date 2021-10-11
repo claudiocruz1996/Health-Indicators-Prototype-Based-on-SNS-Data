@@ -12,15 +12,23 @@ import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import BarChartIcon from '@material-ui/icons/BarChart';
-import WarningIcon from '@material-ui/icons/Warning';
-import { teal } from '@material-ui/core/colors';
+import ShowChartOutlined from '@material-ui/icons/ShowChartOutlined';
+import MapOutlined from '@material-ui/icons/MapOutlined';
+import { teal, grey } from '@material-ui/core/colors';
+
+import DashboardOutlined from '@material-ui/icons/DashboardOutlined';
+import HomeOutlined from '@material-ui/icons/HomeOutlined';
 import Box from "@material-ui/core/Box";
 //Routes
 import ReactRouter from '../../Routes';
 import { Link } from "react-router-dom";
 
-import Logo from '../../assets/mds_logo_cor.png'
+import Logo from '../../assets/monitorDrawer.png'
+import Radial from '../../assets/radial.png'
+import Radial2 from '../../assets/radial2.png'
+import Pt from '../../assets/pt.png'
+
+
 
 
 
@@ -45,73 +53,87 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     height: window.innerHeight, // <= You Need This Line
-    background: "white"
+    background: grey[100],
+    marginLeft: 250,
   },
   iconsDrawer: {
     color: teal[500],
   },
   drawer: {
-    width: 300
+    width: 250,
+    borderRight: 'none'
   },
+  drawerList: {
+    padding: theme.spacing(5, 0),
+  }
 
 }));
 
 export default function ButtonAppBar() {
   const classes = useStyles();
-  const [state, setState] = React.useState({
-    left: false,
-  });
-
-  const toggleMyDrawer = (open) => (event) => {
-    if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-      return;
-    }
-    setState({ ...state, ['left']: open });
-  };
+  /*   const [state, setState] = React.useState({
+      left: false,
+    });
+  
+    const toggleMyDrawer = (open) => (event) => {
+      if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+        return;
+      }
+      setState({ ...state, ['left']: open });
+    }; */
 
 
   return (
     <div className={classes.root}>
       <AppBar position="fixed">
         <Toolbar>
-          <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={toggleMyDrawer(true)}>
+          {/*   <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={toggleMyDrawer(true)}>
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
             Monitor da Saúde
-          </Typography>
+          </Typography> */}
         </Toolbar>
       </AppBar>
-      <Drawer anchor={'left'} open={state['left']} onClose={toggleMyDrawer(false)} >
+      <Drawer /* anchor={'left'} open={state['left']} onClose={toggleMyDrawer(false)} */ variant="permanent" >
         <div
           className={classes.drawer}
-          role="presentation"
-          onClick={toggleMyDrawer(false)}
-          onKeyDown={toggleMyDrawer(false)}
+        /*role="presentation"
+        onClick={toggleMyDrawer(false)}
+        onKeyDown={toggleMyDrawer(false)} */
+
         >
-
-
           <Box
             display="flex"
             justifyContent="center"
             alignItems="center"
-            height="64"
-            style={{ backgroundColor: teal[100] }}
+            height="96"
           >
-            <img src={Logo} alt="Logo" style={{ height: 64, width: 180 }} />
+            <img src={Logo} alt="Logo" style={{ height: 96, width: 300 }} />
           </Box>
-          <Divider />
-          <List>
+          <List className={classes.drawerList}>
             <ListItem button component={Link} to={"/"}>
-              <ListItemIcon className={classes.iconsDrawer}><WarningIcon /></ListItemIcon>
-              <ListItemText className={classes.iconsDrawer}>Home</ListItemText>
+              <ListItemIcon className={classes.iconsDrawer}><HomeOutlined /></ListItemIcon>
+              <ListItemText className={classes.iconsDrawer}>Início</ListItemText>
             </ListItem>
-            <ListItem button component={Link} to={"/dashboard"} >
-              <ListItemIcon className={classes.iconsDrawer}><BarChartIcon /></ListItemIcon>
-              <ListItemText className={classes.iconsDrawer}>Dashboard</ListItemText>
+            <ListItem button component={Link} to={"/monitor"}>
+              <ListItemIcon className={classes.iconsDrawer}><DashboardOutlined /></ListItemIcon>
+              <ListItemText className={classes.iconsDrawer}>Monitor</ListItemText>
+            </ListItem>
+            <ListItem button component={Link} to={"/lines"} >
+              <ListItemIcon className={classes.iconsDrawer}><ShowChartOutlined /></ListItemIcon>
+              <ListItemText className={classes.iconsDrawer}>Linhas</ListItemText>
+            </ListItem>
+            <ListItem button component={Link} to={"/radial"} >
+              <ListItemIcon className={classes.iconsDrawer}><img src={Radial} alt="Radial" /></ListItemIcon>
+              <ListItemText className={classes.iconsDrawer}>Radial</ListItemText>
+            </ListItem>
+            <ListItem button component={Link} to={"/map"} >
+              <ListItemIcon className={classes.iconsDrawer}><MapOutlined /></ListItemIcon>
+              <ListItemText className={classes.iconsDrawer}>Mapas</ListItemText>
             </ListItem>
           </List>
-          <Divider />
+          {/* <Divider /> */}
         </div>
       </Drawer>
       <main className={classes.content}>

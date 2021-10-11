@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import Plot from 'react-plotly.js';
 import axios from 'axios';
-import SelectBox from "../../components/selectBox/SelectBox"
+import SelectBox from "../selectBox/SelectBox"
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';

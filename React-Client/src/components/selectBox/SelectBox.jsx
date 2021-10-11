@@ -16,7 +16,7 @@ export default function SelectBox({ type }) {
   let mainTitle = ""
   let options = []
   let defaultValue = {}
-  let widthComponent = 500;
+  let widthComponent = 300;
 
   if (type == 1) {
     mainTitle = "Indicador"
@@ -27,12 +27,12 @@ export default function SelectBox({ type }) {
       mainTitle = "Subindicador"
       options = subindicatorsArray.filter(x => x.indicador == indicador)
       defaultValue = { title: "Escolha o subindicador que pertende vizualisar." }
-      widthComponent = 700
+      widthComponent = 600
     } else {
       mainTitle = "Subindicador"
       options = subindicatorsArray.filter(x => x.indicador == indicador)
       defaultValue = subindicatorsArray.filter(x => x.subindicator == subindicador)[0]
-      widthComponent = 700
+      widthComponent = 600
     }
 
   }
@@ -90,10 +90,10 @@ const indicatorsArray = [
 
 
 const subindicatorsArray = [
-  { title: 'Hipertensos c/ pressão arterial inferior a 150/90 mmHg nos últimos 6 meses', indicador: 'hipertensao', subindicator: 'cntg_hipertensos_pa_menor_150_90_mmhg_n_norm' },
-  { title: 'Hipertensos < 65 anos c/ pressão arterial inferior a 150/90 mmHg nos últimos 6 meses', indicador: 'hipertensao', subindicator: 'prctg_hipertensos_menores_65a_pa_menor_150_90_mmhg_n_norm' },
+  { title: 'Hipertensos c/ pressão arterial inferior a 150/90 mmHg', indicador: 'hipertensao', subindicator: 'cntg_hipertensos_pa_menor_150_90_mmhg_n_norm' },
+  { title: 'Hipertensos < 65 anos c/ pressão arterial inferior a 150/90 mmHg', indicador: 'hipertensao', subindicator: 'prctg_hipertensos_menores_65a_pa_menor_150_90_mmhg_n_norm' },
   { title: 'Diabéticos c/ último resultado de HgbA1c inferior ou igual a 8,0%', indicador: 'diabetes', subindicator: 'cntg_utentes_com_hgba1c_inferior_ou_igual_8_0_norm' },
   { title: 'Diabetes Mellitus c/ último resultado de HgbA1c inferior ou igual a 8,0%', indicador: 'diabetes', subindicator: 'prctg_dm_ultima_hgba1c_8_0_norm' },
-  { title: 'Diabéticos c/ exame dos pés realizado no último ano', indicador: 'diabetes', subindicator: 'cntg_utentes_com_exame_dos_pes_realizado_no_ultimo_ano_norm' },
-  { title: 'Diabetes Mellitus c/ exame dos pés realizado no último ano', indicador: 'diabetes', subindicator: 'prctg_dm_com_exame_pes_ultimo_ano_norm' },
+  { title: 'Diabéticos c/ exame dos pés realizado', indicador: 'diabetes', subindicator: 'cntg_utentes_com_exame_dos_pes_realizado_no_ultimo_ano_norm' },
+  { title: 'Diabetes Mellitus c/ exame dos pés', indicador: 'diabetes', subindicator: 'prctg_dm_com_exame_pes_ultimo_ano_norm' },
 ];
