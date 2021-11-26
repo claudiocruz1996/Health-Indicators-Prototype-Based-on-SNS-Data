@@ -25,8 +25,7 @@ import { Link } from "react-router-dom";
 
 import Logo from '../../assets/monitorDrawer.png'
 import Radial from '../../assets/radial.png'
-import Radial2 from '../../assets/radial2.png'
-import Pt from '../../assets/pt.png'
+import BoxP from '../../assets/box2.png'
 
 
 
@@ -116,17 +115,21 @@ export default function ButtonAppBar() {
               <ListItemIcon className={classes.iconsDrawer}><HomeOutlined /></ListItemIcon>
               <ListItemText className={classes.iconsDrawer}>Início</ListItemText>
             </ListItem>
-            <ListItem button component={Link} to={"/monitor"}>
+            {/*             <ListItem button component={Link} to={"/monitor"}>
               <ListItemIcon className={classes.iconsDrawer}><DashboardOutlined /></ListItemIcon>
               <ListItemText className={classes.iconsDrawer}>Monitor</ListItemText>
-            </ListItem>
+            </ListItem> */}
             <ListItem button component={Link} to={"/lines"} >
               <ListItemIcon className={classes.iconsDrawer}><ShowChartOutlined /></ListItemIcon>
               <ListItemText className={classes.iconsDrawer}>Linhas</ListItemText>
             </ListItem>
-            <ListItem button component={Link} to={"/radial"} >
+            <ListItem button component={Link} to={"/radar"} >
               <ListItemIcon className={classes.iconsDrawer}><img src={Radial} alt="Radial" /></ListItemIcon>
               <ListItemText className={classes.iconsDrawer}>Radial</ListItemText>
+            </ListItem>
+            <ListItem button component={Link} to={"/box"} >
+              <ListItemIcon className={classes.iconsDrawer}><img src={BoxP} alt="Box Plot" /></ListItemIcon>
+              <ListItemText className={classes.iconsDrawer}>Box Plot</ListItemText>
             </ListItem>
             <ListItem button component={Link} to={"/map"} >
               <ListItemIcon className={classes.iconsDrawer}><MapOutlined /></ListItemIcon>

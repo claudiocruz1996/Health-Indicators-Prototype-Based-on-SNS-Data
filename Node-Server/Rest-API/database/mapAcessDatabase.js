@@ -10,14 +10,16 @@ const pool = new Pool({
 })
 
 
-async function getDataFromUntil(indicator_name, subIndicator_name, start_date, end_date) {
+async function getDataFrom(indicator_name, subIndicator_name, year, month) {
   let response
   try {
-    response = await pool.query(`Select ${subIndicator_name} as value, aces, TO_CHAR(tempo, 'YYYY-MM-DD') as date, lat, long
-      FROM ${indicator_name} 
-      WHERE tempo BETWEEN '${start_date}'
-      AND '${end_date}'
-      ORDER BY tempo ASC`)
+    response = await pool.query(`
+      SELECT h.aces, avg(h.${subIndicator_name}) as value, h.lat, h.long
+      FROM ${indicator_name} h
+      WHERE (${year} = 0 OR date_part('year',h.tempo) = ${year})
+      AND (${month} = 0 OR date_part('month',h.tempo) = ${month})
+      GROUP BY h.aces, h.lat, h.long
+      `)
     return response.rows
   } catch (error) {
     throw new Error(error)
@@ -25,5 +27,5 @@ async function getDataFromUntil(indicator_name, subIndicator_name, start_date, e
 }
 
 module.exports = {
-  getDataFromUntil,
+  getDataFrom,
 }

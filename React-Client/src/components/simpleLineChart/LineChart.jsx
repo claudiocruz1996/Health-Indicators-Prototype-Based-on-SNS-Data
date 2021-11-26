@@ -13,21 +13,23 @@ export default function SimpleLineChartTesting() {
   const [globalState, setGlobalState] = useContext(Context);
 
   useEffect(() => {
-    const { indicador, subindicador } = globalState
+    const { indicador, subindicador, ano, mes } = globalState
 
     if (indicador != undefined && subindicador != undefined) {
-      axios.get(`http://localhost:3030/test?indicator_name=` + indicador + `&subIndicator_name=` + subindicador + `&start_date=2013%2F01%2F01&end_date=2021%2F12%2F01`)
+      axios.get(`http://localhost:3030/lines?indicator_name=` + indicador + `&subIndicator_name=` + subindicador)
         .then(res => {
           const dataRows = JSON.parse(JSON.stringify(res.data));
-          let tempo = subindicatorsAnual.includes(subindicador)
-          for (var i = 0; i < dataRows.data.length; i++) {
-            for (var j = 0; j < dataRows.data[i].x.length; j++) {
-              dataRows.data[i].y[j] = renderSwitch(dataRows.data[i], j, tempo)
-            }
-          }
+          /*           let tempo = subindicatorsAnual.includes(subindicador)
+                    for (var i = 0; i < dataRows.data.length; i++) {
+                      for (var j = 0; j < dataRows.data[i].x.length; j++) {
+                        dataRows.data[i].y[j] = renderSwitch(dataRows.data[i], j, tempo)
+                      }
+                    } */
           setGlobalState({
             indicador: indicador,
             subindicador: subindicador,
+            ano: ano,
+            mes: mes,
             dataset: dataRows.dataset,
             rows: dataRows.rows,
             data: dataRows.data
@@ -37,7 +39,7 @@ export default function SimpleLineChartTesting() {
 
   }, []);
 
-  const { data, dataset, rows, indicador, subindicador } = globalState
+  const { data, dataset, rows, indicador, subindicador, ano, mes } = globalState
   const plotData = []
   data.forEach(dataRows => {
     plotData.push({
@@ -47,18 +49,20 @@ export default function SimpleLineChartTesting() {
   });
 
   function setData() {
-    axios.get(`http://localhost:3030/test?indicator_name=` + indicador + `&subIndicator_name=` + subindicador + `&start_date=2013%2F01%2F01&end_date=2021%2F12%2F01`)
+    axios.get(`http://localhost:3030/lines?indicator_name=` + indicador + `&subIndicator_name=` + subindicador)
       .then(res => {
         const dataRows = JSON.parse(JSON.stringify(res.data));
-        let tempo = subindicatorsAnual.includes(subindicador)
-        for (var i = 0; i < dataRows.data.length; i++) {
-          for (var j = 0; j < dataRows.data[i].x.length; j++) {
-            dataRows.data[i].y[j] = renderSwitch(dataRows.data[i], j, tempo)
-          }
-        }
+        /*         let tempo = subindicatorsAnual.includes(subindicador)
+                for (var i = 0; i < dataRows.data.length; i++) {
+                  for (var j = 0; j < dataRows.data[i].x.length; j++) {
+                    dataRows.data[i].y[j] = renderSwitch(dataRows.data[i], j, tempo)
+                  }
+                } */
         setGlobalState({
           indicador: indicador,
           subindicador: subindicador,
+          ano: ano,
+          mes: mes,
           dataset: dataRows.dataset,
           rows: dataRows.rows,
           data: dataRows.data
@@ -89,7 +93,6 @@ export default function SimpleLineChartTesting() {
           />
         </Grid>
       </Grid>
-
     </div>
   );
 
@@ -97,14 +100,14 @@ export default function SimpleLineChartTesting() {
 
 
 
-const subindicatorsAnual = [
+/* const subindicatorsAnual = [
   'cntg_utentes_com_exame_dos_pes_realizado_no_ultimo_ano_norm',
   'prctg_dm_com_exame_pes_ultimo_ano_norm',
   'cntg_utentes_pelo_menos_1_consulta_presencial_ou_nao_1_ano'
 ]
+ */
 
-
-function renderSwitch(data, j, t) {
+/* function renderSwitch(data, j, t) {
   let value = 0;
   if (!t) {
     if (data.x[j].includes('-01-01') || data.x[j].includes('-07-01')) {
@@ -148,4 +151,4 @@ function renderSwitch(data, j, t) {
     }
   }
   return value
-}
+} */

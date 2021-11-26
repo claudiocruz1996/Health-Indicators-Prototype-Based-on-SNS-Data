@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import Plot from 'react-plotly.js';
 import { Context } from '../app/Global';
 import axios from 'axios';
@@ -6,53 +6,27 @@ import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import { Autorenew } from '@material-ui/icons';
 import SelectBox from "../selectBox/SelectBox"
-
-/* const data = [
-  {
-    type: "scatterpolar",
-    r: [39, 28, 8, 7, 28, 23, 30, 40, 12, 23, 34, 45],
-    theta: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dec"],
-    fill: "toself",
-    name: "A"
-  },
-  {
-    type: "scatterpolar",
-    r: [12, 12, 12, 12, 12, 12, 23, 23, 23, 23, 23, 23],
-    theta: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dec"],
-    fill: "toself",
-    name: "B",
-  },
-  {
-    type: "scatterpolar",
-    r: [23, 54, 2, 53, 34, 42, 16, 34, 12, 12, 54, 45],
-    theta: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dec"],
-    fill: "toself",
-    name: "C"
-  }
-]; */
-
+import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 
 export default function SimpleRadarChartTesting() {
-
   const [globalState, setGlobalState] = useContext(Context);
-  useEffect(() => {
-    const { indicador, subindicador } = globalState
 
+  const { data, dataset, rows, indicador, subindicador, ano, mes } = globalState
+  let year = ano
+  useEffect(() => {
+    const { indicador, subindicador, ano, mes } = globalState
     if (indicador != undefined && subindicador != undefined) {
-      axios.get(`http://localhost:3030/test?indicator_name=` + indicador + `&subIndicator_name=` + subindicador + `&start_date=2020%2F01%2F01&end_date=2020%2F12%2F01`)
+      axios.get(`http://localhost:3030/radar?indicator_name=` + indicador + `&subIndicator_name=` + subindicador + `&year=` + year + ``)
         .then(res => {
           const dataRows = JSON.parse(JSON.stringify(res.data));
-          let tempo = subindicatorsAnual.includes(subindicador)
-          for (var i = 0; i < dataRows.data.length; i++) {
-            for (var j = 0; j < dataRows.data[i].x.length; j++) {
-              dataRows.data[i].y[j] = renderSwitch(dataRows.data[i], j, tempo)
-            }
-          }
           setGlobalState({
             indicador: indicador,
             subindicador: subindicador,
             dataset: dataRows.dataset,
+            ano: ano,
+            mes: mes,
             rows: dataRows.rows,
             data: dataRows.data
           })
@@ -61,7 +35,7 @@ export default function SimpleRadarChartTesting() {
 
   }, []);
 
-  const { data, dataset, rows, indicador, subindicador } = globalState
+
   const plotData = []
   data.forEach(dataRows => {
     plotData.push({
@@ -70,24 +44,25 @@ export default function SimpleRadarChartTesting() {
   });
 
   function setData() {
-    axios.get(`http://localhost:3030/test?indicator_name=` + indicador + `&subIndicator_name=` + subindicador + `&start_date=2020%2F01%2F01&end_date=2020%2F12%2F01`)
+    axios.get(`http://localhost:3030/radar?indicator_name=` + indicador + `&subIndicator_name=` + subindicador + `&year=` + year + ``)
       .then(res => {
         const dataRows = JSON.parse(JSON.stringify(res.data));
-        let tempo = subindicatorsAnual.includes(subindicador)
-        for (var i = 0; i < dataRows.data.length; i++) {
-          for (var j = 0; j < dataRows.data[i].x.length; j++) {
-            dataRows.data[i].y[j] = renderSwitch(dataRows.data[i], j, tempo)
-          }
-        }
         setGlobalState({
           indicador: indicador,
           subindicador: subindicador,
           dataset: dataRows.dataset,
+          ano: year,
+          mes: mes,
           rows: dataRows.rows,
           data: dataRows.data
         })
       })
   }
+
+  function onTagChange(event, values) {
+    year = values.ano;
+  }
+
 
   return (
     <>
@@ -97,6 +72,30 @@ export default function SimpleRadarChartTesting() {
         </Grid>
         <Grid item >
           <SelectBox type={2} />
+        </Grid>
+        <Grid item>
+          {<Autocomplete
+            id='combo23'
+            disableClearable
+            options={[
+              { title: '2021', ano: 2021 },
+              { title: '2020', ano: 2020 },
+              { title: '2019', ano: 2019 },
+              { title: '2018', ano: 2018 },
+              { title: '2017', ano: 2017 },
+              { title: '2016', ano: 2016 },
+              { title: '2015', ano: 2015 },
+              { title: '2014', ano: 2014 },
+            ]}
+            value={{ title: '' + year + '', ano: year }}
+            getOptionLabel={(option) => option.title}
+            style={{ width: 250 }}
+            onChange={onTagChange}
+            clearOnBlur={false}
+            renderInput={params => (
+              <TextField {...params} label={"Ano"} variant='outlined' />
+            )}
+          />}
         </Grid>
         <Grid item >
           <Button style={{ height: 55 }} variant="contained" color="primary" endIcon={<Autorenew />} onClick={setData} >Carregar</Button>
@@ -123,7 +122,7 @@ const layout = {
   width: 1200,
   height: 600,
 };
-
+/*
 const subindicatorsAnual = [
   'cntg_utentes_com_exame_dos_pes_realizado_no_ultimo_ano_norm',
   'prctg_dm_com_exame_pes_ultimo_ano_norm',
@@ -177,7 +176,7 @@ function renderSwitch(data, j, t) {
   }
   return value
 }
-
+ */
 
 
 /* // eslint-disable no-use-before-define

@@ -1,5 +1,5 @@
 const mapMethods = require("../methods/mapMethods")
-//const testModel = require("../models/testModel")
+const mapModel = require("../models/mapModel")
 /**
  * This function revices the query parameters and then validates them acording to the model.
  * If everything is valid, this function will call the indicatorsMethods function passing the parameters as arguments and then it will send a responde with code 200 with the JSON result
@@ -10,7 +10,7 @@ const mapMethods = require("../methods/mapMethods")
  */
 async function mapController(req, res, next) {
   try {
-    //await testModel.validateAsync(req.query)
+    await mapModel.validateAsync(req.query)
     res.status(200).json(await mapMethods(req.query))
   } catch (err) {
     next(err)

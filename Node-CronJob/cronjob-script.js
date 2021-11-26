@@ -12,14 +12,15 @@ const pool = new Pool({
   user: "claudio",
   host: "localhost",
   database: "MDS",
-  password: "postgres",
-  port: 5433,
+  password: "qwerty",
+  port: 5432,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
 })
 
 let myNewObject = []
+let myNewNewObject = []
 
 let concatToFloatList = [
   "total_utentes_sem_mdf_atribuido_por_opcao0",
@@ -29,24 +30,84 @@ let concatToFloatList = [
   "taxa_de_utilizacao_consultas_medicas_1_ano_nos_utentes_sem_mdf",
 ]
 
+let subindicatorMonthValue = {
+  "cntg_utentes_com_hgba1c_inferior_ou_igual_8_0_norm": 6,
+  "prctg_dm_ultima_hgba1c_8_0_norm": 6,
+  "cntg_utentes_com_exame_dos_pes_realizado_no_ultimo_ano_norm": 12,
+  "prctg_dm_com_exame_pes_ultimo_ano_norm": 12,
+  "cntg_hipertensos_pa_menor_150_90_mmhg_n_norm": 6,
+  "prctg_hipertensos_menores_65a_pa_menor_150_90_mmhg_n_norm": 6,
+  "prctg_r_nasc_consulta_vigil_ate_28_dias_vida_norm": 12,
+  "prctg_r_nasc_domicilio_enf_ate_15_dia_vida_norm": 12,
+  "cntg_r_nasc_consulta_vigil_ate_28_dias_vida_norm": 12,
+  "cntg_r_nasc_domicilio_enf_ate_15_dia_vida_norm": 12,
+  "cntg_mulheres_colpocitologia_atualizada_norm": 12,
+  "cntg_utentes_rastreio_cancro_cr_efetuado_norm": 12,
+  "prctg_utentes_50_75_anos_rastreio_cancro_cr_norm": 12,
+  "prctg_mulheres_50_70_anos_mamogr_dois_anos_norm": 12,
+  "cntg_mulheres_registo_de_mamogr_ultimos_dois_anos_norm": 12,
+  "prctg_mulheres_25_60_anos_colpocitologia_atualizada_norm": 12,
+  "cntg_total_usf_norm": 0,
+  "cntg_nmr_contactos_enfermagem_nao_presenciais_norm": 0,
+  "cntg_nmr_contactos_enfermagem_presenciais_norm": 0,
+  "cntg_consultas_nao_presenciais_ou_inespecificas_norm": 0,
+  "cntg_consultas_medicas_presencias_norm": 0,
+  "cntg_consultas_medicas_ao_domicilio_norm": 0,
+}
+
+
+
+
+
 function acesFixing(string) {
   return stringSimilarity.findBestMatch(string, acesList).bestMatch.target
 }
 
-function contagemNormalization(value, aces) {
+function contagemNormalization(value, aces, tempo) {
   let totalPopulationAces
   let valuePer100k
 
+  let temp = acesFixing(aces)
   jsonPopulacaoResidentePorAces.forEach((element) => {
-    if (element.aces == acesFixing(aces)) {
+    if (element.aces == temp) {
       totalPopulationAces = element.populacaoTotal
     }
   })
 
   valuePer100k = ((value / totalPopulationAces) * 100000).toFixed(2)
 
+
+  if (temp == "ACES Cascais") {
+    console.log("----------------------------" + tempo + "-----------------------------------")
+    console.log("value_norm: " + value + " value_100k: " + valuePer100k)
+    console.log("aces_norm: " + aces + " aces_list: " + temp)
+    console.log("----------------------------Inicio-----------------------------------")
+  }
   return valuePer100k
 }
+
+async function diferenciacao(json) {
+  for (let i = 0; i < json.length - 1; i++) {
+    Object.keys(json[i]).filter((x) => x.includes("norm")).forEach(key => {
+
+      if (subindicatorMonthValue[key] == 12) {
+        json[i][key] = json[i][key] - json[i + 1][key]
+      } else if (subindicatorMonthValue[key] == 6) {
+        if (json[i]["tempo"].includes("-07-01")) {
+          json[i][key] = json[i][key]
+        } else {
+          json[i][key] = json[i][key] - json[i + 1][key]
+        }
+      } else {
+        json[i][key] = json[i][key]
+      }
+    })
+
+  }
+  return json
+}
+
+
 
 /**
  * This function creates a new object from the recived data, and then it inserts the new freshly created object data.
@@ -90,7 +151,7 @@ async function executeQuery(tableName, data, dataModel, dataset, client, year) {
             field != "faixa_etaria"
           ) {
             data[mapping[tableName][field] + "_norm"] = mapping[tableName][field].includes("cntg")
-              ? contagemNormalization(element.fields[field], element.fields[element.fields["aces"] != null ? "aces" : "entidade"])
+              ? contagemNormalization(element.fields[field], element.fields[element.fields["aces"] != null ? "aces" : "entidade"], element.fields["tempo"])
               : element.fields[field]
           }
         }
@@ -108,12 +169,21 @@ async function executeQuery(tableName, data, dataModel, dataset, client, year) {
       })
     })
 
-    //console.log(myNewObject)
-    let datasetInsert = dataModel.insert(myNewObject).toQuery()
+    for (const aces of acesList) {
+      let teste = myNewObject.filter(x => x.aces == aces)
+      teste.sort(function (a, b) {
+        var c = new Date(a.tempo);
+        var d = new Date(b.tempo);
+        return d - c;
+      })
+      myNewNewObject.push(await diferenciacao(teste))
+    }
+
+    let datasetInsert = dataModel.insert(myNewNewObject).toQuery()
     await client.query(datasetInsert)
     console.log(`Status:[Atualizado]  Os dados para o indicador ${dataset} foram atualizados para o ano de ${year}`)
-
     myNewObject = []
+    myNewNewObject = []
   } catch (err) {
     console.log(err.stack)
   }
@@ -130,12 +200,13 @@ async function executeQuery(tableName, data, dataModel, dataset, client, year) {
  */
 async function axiosCallDataset(tableName, dataset, nhits, facet, dataModel, client) {
   try {
+    nhits = 1
     let rows = 9999
     let year = new Date().getFullYear()
     let resTableRow = await client.query(`SELECT COUNT (*) FROM ${tableName};`)
     if (resTableRow.rows[0].count != nhits) {
       await client.query(`DELETE FROM ${tableName} WHERE date_part('year', tempo) = ${year};`)
-      const resp = await axios.get(`https://transparencia.sns.gov.pt/api/records/1.0/search/?dataset=${dataset}&rows=${rows}&refine.${facet}=${year}`)
+      const resp = await axios.get(`https://transparencia.sns.gov.pt/api/records/1.0/search/?dataset=${dataset}&rows=${rows}&refine.${facet}=${year}&sort=-${facet}`)
       return await executeQuery(tableName, resp.data, dataModel, dataset, client, year)
     } else console.log(`Status:[Normal]  Os dados para o indicador ${dataset} já se encontram atualizados`)
   } catch (err) {
@@ -168,32 +239,19 @@ async function axiosCallNhits(tableName, dataset, dataModel) {
 /**
  * This Scheduler runs every first day of every month at 01:00h. [0 1 1 * *]
  */
-cron.schedule("*/5 * * * *", async function () {
+cron.schedule("*/1 * * * *", async function () {
   try {
     console.log("cronjob as started!")
+
     await axiosCallNhits("hipertensao", "hipertensao", dataModels.hipertensao)
-    await axiosCallNhits("diabetes", "diabetes", dataModels.diabetes)
-    await axiosCallNhits("saude_da_mulher_e_crianca", "saude-da-mulher-e-crianca", dataModels.saude_da_mulher_e_crianca)
-    await axiosCallNhits("rastreios_oncologicos", "rastreios-oncologicos", dataModels.rastreios_oncologicos)
-    await axiosCallNhits("registo_de_testamentos_vitais", "registo-de-testamentos-vitais", dataModels.registo_de_testamentos_vitais)
-    await axiosCallNhits(
-      "referenciacoes_soep_emitidas_nos_centros_de_saude",
-      "referenciacoes-soep-emitidas-nos-centros-de-saude",
-      dataModels.referenciacoes_soep_emitidas_nos_centros_de_saude
-    )
-    await axiosCallNhits("evolucao_das_consultas_medicas_nos_csp", "evolucao-das-consultas-medicas-nos-csp", dataModels.evolucao_das_consultas_medicas_nos_csp)
-    await axiosCallNhits("evolucao_do_numero_de_unidades_funcionais", "evolucao-do-numero-de-unidades-funcionais", dataModels.evolucao_do_numero_de_unidades_funcionais)
-    await axiosCallNhits("evolucao_dos_contactos_de_enfermagem_nos_csp", "evolucao-dos-contactos-de-enfermagem-nos-csp", dataModels.evolucao_dos_contactos_de_enfermagem_nos_csp)
-    /*     await axiosCallNhits(
-      "acesso_de_consultas_medicas_pela_populacao_inscrita",
-      "acesso-de-consultas-medicas-pela-populacao-inscrita",
-      dataModels.acesso_de_consultas_medicas_pela_populacao_inscrita
-    ) */
-    /*     await axiosCallNhits(
-      "utentes_inscritos_em_cuidados_de_saude_primarios",
-      "utentes-inscritos-em-cuidados-de-saude-primarios",
-      dataModels.utentes_inscritos_em_cuidados_de_saude_primarios
-    ) */
+    /*     await axiosCallNhits("diabetes", "diabetes", dataModels.diabetes)
+        await axiosCallNhits("saude_da_mulher_e_crianca", "saude-da-mulher-e-crianca", dataModels.saude_da_mulher_e_crianca)
+        await axiosCallNhits("rastreios_oncologicos", "rastreios-oncologicos", dataModels.rastreios_oncologicos)
+        await axiosCallNhits("evolucao_das_consultas_medicas_nos_csp", "evolucao-das-consultas-medicas-nos-csp", dataModels.evolucao_das_consultas_medicas_nos_csp)
+        await axiosCallNhits("evolucao_do_numero_de_unidades_funcionais", "evolucao-do-numero-de-unidades-funcionais", dataModels.evolucao_do_numero_de_unidades_funcionais)
+        await axiosCallNhits("evolucao_dos_contactos_de_enfermagem_nos_csp", "evolucao-dos-contactos-de-enfermagem-nos-csp", dataModels.evolucao_dos_contactos_de_enfermagem_nos_csp)
+     */
+    console.log("cronjob as ended!")
   } catch (err) {
     console.log(err)
   }

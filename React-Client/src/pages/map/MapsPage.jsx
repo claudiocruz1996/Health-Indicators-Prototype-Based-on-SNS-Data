@@ -29,7 +29,7 @@ export default function Dashboard() {
     <>
       <div className={classes.root}>
         <Typography variant="h4" noWrap className={classes.title}>
-          Indicadores
+          Mapa Temporal
         </Typography>
         <Paper className={classes.paper}>
           <Maps />

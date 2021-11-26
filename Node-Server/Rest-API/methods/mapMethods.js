@@ -9,13 +9,8 @@ async function mapMethods(params) {
     let response
     const obj = { dataset: "dataset", rows: 0, data: [] }
 
-    if (params.start_date && params.end_date) {
-      response = await mapAcessDatabase.getDataFromUntil(params.indicator_name, params.subIndicator_name, params.start_date, params.end_date)
-      console.log(`[${params.indicator_name}] -> getDataFrom ${params.start_date} Until ${params.end_date}`)
-    }
-
-
-    console.log(response)
+    response = await mapAcessDatabase.getDataFrom(params.indicator_name, params.subIndicator_name, params.year, params.month)
+    console.log(`[${params.indicator_name}] -> getDataFrom ${params.year}/${params.month}`)
 
     obj["data"] = response
     obj["dataset"] = params.indicator_name
