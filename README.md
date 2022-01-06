@@ -3,7 +3,7 @@
 > With the significant increase in the volume of information produced in the field of healthcare, it is pertinent to have systems capable of speeding up the process of analyzing and visualizing this type of data.
 
 ## Summary
-In this context, the project was conceptualized and implemented a platform that uses the indicators repository from the National Health Service as a data source. This system must be able to process and represent this information in an easy and understandable way when used by a user. The project culminated not only with the development of a logical layer for data processing, treatment, and storage but also with the implementation of a Web platform where it is possible to consult information on health indicators from various types of views.
+In this context, the project was conceptualized and implemented using the health indicators repository from the National Health Service as a data source. This system must be able to process and represent this information in an easy and understandable way when used by a user. The project culminated not only with the development of a logical layer for data processing, treatment, and storage but also with the implementation of a Web platform where it is possible to consult information on health indicators from various types of views.
 
 ## Structure 
 
